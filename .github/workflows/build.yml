@@ -1,0 +1,26 @@
+name: 'Build'
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: docker://anheuermann/omc-diff-build-deps
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Compile
+        run: |
+          cmake -S . -B build -Wno-dev -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX=$(pwd)/install
+          cmake --build build/ --target install
+
+      - name: Archive omc-diff
+        uses: actions/upload-artifact@v3
+        with:
+          name: omc-diff-linux64
+          path: |
+            install/bin
